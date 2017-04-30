@@ -1,7 +1,7 @@
-import Tile from 'tile.js';
+const Tile = require("./tile.js");
 
 class Board {
-    constructor(gridSize, numBombs) {
+    constructor(gridSize=9, numBombs=6) {
         this.gridSize = gridSize;
         this.numBombs = numBombs;
 
@@ -17,7 +17,6 @@ class Board {
             }
             this.grid.push(row);
         }
-
         this.plantBombs();
     }
 
@@ -47,4 +46,52 @@ class Board {
     getTile(pos) {
         return this.grid[pos[0]][pos[1]];
     }
+
+    render() {
+        for (let i = 0; i < this.gridSize; i++) {
+            let rowStr = "";
+            for (let j = 0; j < this.gridSize; j++) {
+                const tile = this.getTile([i, j]);
+                rowStr += tile.render();
+            }
+            console.log(rowStr);
+        }
+    }
+
+    reveal() {
+        for (let i = 0; i < this.gridSize; i++) {
+            let rowStr = "";
+            for (let j = 0; j < this.gridSize; j++) {
+                const tile = this.getTile([i, j]);
+                rowStr += tile.reveal();
+            }
+            console.log(rowStr);
+        }
+    }
+
+    promptMove(reader, moveCallback) {
+        this.render();
+        reader.question("Enter rowNum,colNum: " + "\n", input => {
+            const pos = input.split(",").map(el => parseInt(el, 10));
+            moveCallback(pos);
+        });
+    }
+
+    run(reader, completionCallback) {
+        this.promptMove(reader, pos => {
+            if (!this.isValidPos(pos)) {
+                console.log("Invalid move!");
+            }
+            const tile = this.getTile(pos);
+            if (tile.bombed) {
+                this.reveal();
+                console.log("Game over!");
+            } else {
+                tile.explore();
+                return this.run(reader, completionCallback);
+            }
+        });
+    }
 }
+
+module.exports = Board;

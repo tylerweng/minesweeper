@@ -20,13 +20,13 @@ class Tile {
     }
 
     adjacentBombCount() {
-        return this.adjacentTiles.filter(tile => tile.bombed).length;
+        return this.adjacentTiles().filter(tile => tile.bombed).length;
     }
 
     adjacentTiles() {
         const adjacentTiles = [];
-        DELTAS.map((dx, dy) => {
-            const adjacentPos = [this.pos[0] + dx, this.pos[1] + dy];
+        DELTAS.map(delta => {
+            const adjacentPos = [this.pos[0] + delta[0], this.pos[1] + delta[1]];
             if (this.board.isValidPos(adjacentPos)) {
                 adjacentTiles.push(this.board.getTile(adjacentPos));
             }
@@ -38,7 +38,7 @@ class Tile {
         if (this.flagged || this.explored) return this;
         this.explored = true;
         if (!this.bombed && this.adjacentBombCount() === 0) {
-            this.adjacentTiles.forEach(tile => tile.explore);
+            this.adjacentTiles().forEach(tile => tile.explore());
         }
         return this;
     }
@@ -65,4 +65,4 @@ class Tile {
 
 }
 
-export default Tile;
+module.exports = Tile;
